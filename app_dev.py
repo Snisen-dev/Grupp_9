@@ -1,4 +1,9 @@
-# Import nessecairy modules
+
+'''
+$ uvicorn app_dev:app --reload
+'''
+
+# Import necessary modules
 from fastapi import FastAPI, HTTPException
 from typing import List, Dict
 from development import get_db_connection as con_db
@@ -72,6 +77,12 @@ async def booked_rooms():
 @app.get("/rooms/unbooked")
 async def unbooked_rooms():
     return booking_system.get_unbooked_rooms()
+
+@app.delete("/rooms/remove")
+async def delete_booking():
+    return 
+
+
 
 @app.post("/book/{room_id}")
 async def new_booking(room_id: int):
