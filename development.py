@@ -27,10 +27,9 @@ def initialize_database():
                         avalaible BOOLEAN DEFAULT 1
                     );
                 ''')
+                
         except sqlite3.Error as e:
             print(f'Ett fel uppstod när tabellen skulle skapas: {e}')
-        finally:
-            conn.close()
 
               # Skapa tabell för rum
         conn.execute('''
