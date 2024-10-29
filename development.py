@@ -4,23 +4,44 @@ import sqlite3
 
 #Funktion för att ansluta till databasen
 def get_db_connection():
-    conn = sqlite3.connect('database.db')
-    conn.row_factory = sqlite3.Row  # Gör att vi kan använda kolumnnamn som nycklar
-    return conn
-
+    try:
+        conn = sqlite3.connect('database.db')
+        conn.row_factory = sqlite3.Row  # Gör att vi kan använda kolumnnamn som nycklar
+        return conn
+    except sqlite3.Error as e:
+        print(f'Ett fel uppstod vid anslutning till databasen: {e}')
+        return None
+    
 #Skapar en funktion som ansluter till databasen och skapar tabellen "bookings" om den inte redan finns
 def initialize_database():
     conn = get_db_connection()
-    with conn:
+    if conn is not None:
+        try:
+            with conn:
+                conn.execute('''
+                    CREATE TABLE IF NOT EXISTS bookings (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        room TEXT NOT NULL,
+                        date TEXT NOT NULL,
+                        time TEXT NOT NULL,
+                        avalaible BOOLEAN DEFAULT 1
+                    );
+                ''')
+        except sqlite3.Error as e:
+            print(f'Ett fel uppstod när tabellen skulle skapas: {e}')
+        finally:
+            conn.close()
+
+              # Skapa tabell för rum
         conn.execute('''
-            CREATE TABLE IF NOT EXISTS bookings (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                room TEXT NOT NULL,
-                date TEXT NOT NULL,
-                time TEXT NOT NULL,
-                avalaible BOOLEAN DEFAULT 1
+            CREATE TABLE IF NOT EXISTS rooms (
+                room_name TEXT PRIMARY KEY
             );
         ''')
+
+        # Lägg till fem tillgängliga rum om de inte redan finns
+        rooms = [('Room 1',), ('Room 2',), ('Room 3',), ('Room 4',), ('Room 5',)]
+        conn.executemany('INSERT OR IGNORE INTO rooms (room_name) VALUES (?)', rooms)
     conn.close()
 
 #För att säkerställa att datum och tid följer korrekt format innan de sparas i databasen, 
