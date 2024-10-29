@@ -6,12 +6,13 @@ $ uvicorn app_dev:app --reload
 # Import necessary modules
 from fastapi import FastAPI, HTTPException
 from typing import List, Dict
+from datetime import datetime, timedelta
 from development import get_db_connection as con_db
 
 app = FastAPI()
 
 # Functionn for connecting to the database
-def connect_to_db():
+def connect_database():
     try: 
         connection = con_db()
         return connection
@@ -32,7 +33,7 @@ class Room:
 class AllRooms:
     def __init__(self) -> None:
         self.rooms: List[Room] = []
-        self.db_connection = connect_to_db()
+        self.db_connection = con_db()
 
     # 
     def new_room(self, room_id: int):
@@ -57,13 +58,37 @@ class AllRooms:
 
 booking_system = AllRooms()
 
+def get_available_times_for_today():
+    today = datetime.today().date()  # Hämta dagens datum
+
+    conn = con_db()  # Anslut till databasen
+    cursor = conn.cursor()
+
+    # Hämta tillgängliga tider för dagens datum
+    cursor.execute('''
+        SELECT room, time FROM bookings 
+        WHERE date = ? AND available = 1
+    ''', (today,))
+    
+    available_times = cursor.fetchall()
+    conn.close()
+
+    # Organisera resultatet i en läsbar form
+    result = {}
+    for room, time in available_times:
+        if room not in result:
+            result[room] = []
+        result[room].append(time)
+    
+    return result 
+
 # Add some rooms for testing
 for i in range(1, 6):
     booking_system.new_room(i)
 
 @app.get("/")
 async def root():
-    connect_to_db()
+    con_db()
     return {'Message': 'Välkommen till Grupp 9:s bokningssystem'}
 
 @app.get("/rooms")
@@ -81,8 +106,6 @@ async def unbooked_rooms():
 @app.delete("/rooms/remove")
 async def delete_booking():
     return 
-
-
 
 @app.post("/book/{room_id}")
 async def new_booking(room_id: int):
