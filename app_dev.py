@@ -58,6 +58,7 @@ for i in range(1, 6):
 
 @app.get("/")
 async def root():
+    connect_to_db()
     return {'Message': 'Välkommen till Grupp 9:s bokningssystem'}
 
 @app.get("/rooms")
