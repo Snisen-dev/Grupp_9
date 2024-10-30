@@ -50,8 +50,10 @@ class AllRooms:
 
     def get_all_rooms(self) -> List[Dict]:
         conn=con_db()
-        conn.execute('''SELECT rum_id FROM bookings;
+        cursor=conn.cursor()
+        cursor.execute('''SELECT rum_id FROM bookings;
                       ''')
+        cursor.fetchall()
             
         return [room.to_dict() for room in self.rooms]
 
