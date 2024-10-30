@@ -12,6 +12,7 @@ import sqlite3
 
 app = FastAPI()
 
+
 # Functionn for connecting to the database
 def connect_database():
     try: 
@@ -53,9 +54,9 @@ class AllRooms:
         cursor=conn.cursor()
         cursor.execute('''SELECT rum_id FROM bookings;
                       ''')
-        cursor.fetchall()
+        return cursor.fetchall()
             
-        return [room.to_dict() for room in self.rooms]
+       # return [room.to_dict() for room in self.rooms]
 
     def get_booked_rooms(self) -> List[Dict]:
         return [room.to_dict() for room in self.rooms if room.booked]
@@ -73,7 +74,7 @@ def get_available_times_for_today():
 
     # Hämta tillgängliga tider för dagens datum
     cursor.execute('''
-        SELECT rum, time FROM bookings 
+        SELECT rum_id, time FROM bookings 
         WHERE datum = ? AND available = 1
     ''', (today,))
     
@@ -89,9 +90,9 @@ def get_available_times_for_today():
     
     return result 
 
-# Add some rooms for testing
+"""# Add some rooms for testing
 for i in range(1, 6):
-    booking_system.new_room(i)
+    booking_system.new_room(i)"""
 
 @app.get("/")
 async def root():
