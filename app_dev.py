@@ -49,10 +49,9 @@ class AllRooms:
                 return True
         return False
 
-    def get_all_rooms(self) -> List[Dict]:
+    def get_all_rooms(self):
         conn=con_db()
-        cursor=conn.cursor()
-        cursor.execute('''SELECT rum_id FROM bookings;
+        conn.execute('''SELECT rum_id FROM bookings;
                       ''')
         return cursor.fetchall()
             
