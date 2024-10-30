@@ -88,8 +88,8 @@ def get_available_times_for_today():
     return result 
 
 # Add some rooms for testing
-for i in range(1, 6):
-    booking_system.new_room(i)
+# for i in range(1, 6):
+#     booking_system.new_room(i)
 
 @app.get("/")
 async def root():
