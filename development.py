@@ -17,7 +17,7 @@ def create_booking_table():
         conn.execute('''
             CREATE TABLE IF NOT EXISTS bookings (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                rum TEXT NOT NULL,
+                rum_id TEXT NOT NULL,
                 datum TEXT NOT NULL,
                 tid TEXT NOT NULL,
                 available BOOLEAN DEFAULT 1
@@ -28,22 +28,23 @@ def create_booking_table():
 
 # Funktion för att fylla tabellen med bokningsbara tider
 def populate_bookings():
-    rum = ['Room 1', 'Room 2', 'Room 3', 'Room 4', 'Room 5']
+    rum = ["Room 1 ", "Room 2 ", "Room 3 ", "Room 4 ", "Room 5 "]
     start_time = 8  # 08:00
     end_time = 17   # 17:00
-    tider = [f"{str(hour).zfill(2)}:00" for hour in range(start_time, end_time)]  # Tider från 08:00 till 16:00
+    tider = [f" {str(hour).zfill(2)}:00 " for hour in range(start_time, end_time)]  # Tider från 08:00 till 16:00
 
     today = datetime.today()
     weekdays = [today + timedelta(days=i) for i in range(7) if (today + timedelta(days=i)).weekday() < 5]  # Veckans vardagar
-
     conn = get_db_connection()
     with conn:
         for rum in rum:
             for weekday in weekdays:
                 for tid in tider:
                     # Infoga tillgängliga tider i databasen
-                    conn.execute('INSERT INTO bookings (rum, datum, tid, available) VALUES (?, ?, ?, ?)', 
-                                 (rum, weekday.date(), tid, True))
+                    date_str = weekday.date().isoformat() #Blir av med felmeddelandet  DeprecationWarning: The default date adapter is deprecated as of Python 3.12; see the sqlite3 documentation for suggested replacement recipes
+
+                    conn.execute('INSERT INTO bookings (rum_id, datum, tid, available) VALUES (?, ?, ?, ?)', 
+                                 (rum, date_str, tid, True))
     conn.close()
 
 """              # Skapa tabell för rum

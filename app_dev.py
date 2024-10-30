@@ -8,6 +8,7 @@ from fastapi import FastAPI, HTTPException
 from typing import List, Dict
 from datetime import datetime, timedelta
 from development import get_db_connection as con_db
+import sqlite3
 
 app = FastAPI()
 
@@ -48,6 +49,10 @@ class AllRooms:
         return False
 
     def get_all_rooms(self) -> List[Dict]:
+        conn=con_db()
+        conn.execute('''SELECT rum_id FROM bookings;
+                      ''')
+            
         return [room.to_dict() for room in self.rooms]
 
     def get_booked_rooms(self) -> List[Dict]:
