@@ -71,8 +71,8 @@ def get_available_times_for_today():
 
     # Hämta tillgängliga tider för dagens datum
     cursor.execute('''
-        SELECT room, time FROM bookings 
-        WHERE date = ? AND available = 1
+        SELECT rum, time FROM bookings 
+        WHERE datum = ? AND available = 1
     ''', (today,))
     
     available_times = cursor.fetchall()
@@ -95,6 +95,7 @@ for i in range(1, 6):
 async def root():
     con_db()
     return {'Message': 'Välkommen till Grupp 9:s bokningssystem'}
+    
 
 @app.get("/rooms")
 async def check_bookings():
