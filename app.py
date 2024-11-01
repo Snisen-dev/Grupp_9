@@ -9,11 +9,17 @@ database.initialize_database()
 
 # Klass för att hantera bokningssystemet
 class BookingSystem:
+    def __init__(self):
+        pass
+    
     def book_room(self, room: str, date: str, time: str) -> bool:
         return database.book_room(room, date, time)
 
     def get_bookings(self) -> List[Dict]:
         return database.get_bookings()
+
+    def delete_booking(self, booking_id: int) -> bool:
+        return database.delete_booking(booking_id)
 
 # Instansiera bokningssystemet
 booking_system = BookingSystem()
@@ -29,3 +35,13 @@ async def book_room_endpoint(room: str, date: str, time: str):
 @app.get("/bookings")
 async def get_all_bookings():
     return booking_system.get_bookings()
+
+
+#@app.put("/")
+
+@app.delete("/bookings/{booking_id}")
+async def delete_booking_endpoint(booking_id: int):
+    if booking_system.delete_booking(booking_id):
+        return {"message": f"Booking {booking_id} has been deleted."}
+    else:
+        raise HTTPException(status_code=404, detail="Booking not found.")

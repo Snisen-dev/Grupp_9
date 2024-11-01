@@ -55,3 +55,15 @@ def get_bookings() -> List[Dict]:
     except Exception as e:
         print(f"Error retrieving bookings: {e}")
         return []
+
+
+def delete_booking(booking_id: int) -> bool:
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.execute("DELETE FROM bookings WHERE id = ?", (booking_id,))
+            if cursor.rowcount == 0:
+                return False  # Ingen bokning med det angivna ID:t hittades
+            return True
+    except Exception as e:
+        print(f"Error deleting booking: {e}")
+        return False
