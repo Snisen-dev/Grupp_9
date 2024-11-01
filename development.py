@@ -1,4 +1,6 @@
 import sqlite3
+from datetime import datetime,timedelta
+
 
 # Funktion för att ansluta till databasen
 def get_db_connection():
@@ -21,6 +23,26 @@ def initialize_database():
         ''')
     conn.close()
 
+def populate_bookings():
+    rooms = ["Room 1 ", "Room 2 ", "Room 3 ", "Room 4 ", "Room 5 "]
+    start_time = 8  # 08:00
+    end_time = 17   # 17:00
+    tider = [f" {str(hour).zfill(2)}:00 " for hour in range(start_time, end_time)]  # Tider från 08:00 till 16:00
+
+    today = datetime.today()
+    weekdays = [today + timedelta(days=i) for i in range(7) if (today + timedelta(days=i)).weekday() < 5]  # Veckans vardagar
+    conn = get_db_connection()
+    with conn:
+        for room in rooms:
+            for weekday in weekdays:
+                for tid in tider:
+                    # Infoga tillgängliga tider i databasen
+                    date = weekday.date().isoformat() #Blir av med felmeddelandet  DeprecationWarning: The default date adapter is deprecated as of Python 3.12; see the sqlite3 documentation for suggested replacement recipes
+
+                    conn.execute('INSERT INTO bookings (room, date, time, avalaible) VALUES (?, ?, ?, ?)', 
+                                 (room, date, tid, True))
+    conn.close()
+
 #För att säkerställa att datum och tid följer korrekt format innan de sparas i databasen, 
 #skapar vi en funktion som använder datetime för att validera och formatera datum och tid.
 from datetime import datetime
@@ -40,3 +62,5 @@ def validate_and_format_date(date_str, time_str):
 if __name__ == "__main__":
     initialize_database()
     print("Database initialized and table created (if not already present).")
+
+
