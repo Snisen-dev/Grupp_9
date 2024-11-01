@@ -1,4 +1,4 @@
-import requests
+import requests # type: ignore
 from datetime import datetime, timedelta, time
 
 BASE_URL = "http://127.0.0.1:8000"
@@ -46,11 +46,11 @@ def boka_rum_terminal():
                 print("Felaktigt datumformat. Ange datumet i formatet YYYY-MM-DD.")
                 continue
 
-            tid = input("Ange en tid att boka (08:00 - 17:00) i format HH:MM: ")
+            tid = input("Ange en tid att boka (08:00 - 16:00) i format HH:MM: ")
             try:
                 tid_obj = datetime.strptime(tid, "%H:%M").time()
-                if not (time(8, 0) <= tid_obj <= time(17, 0)):
-                    print("Ogiltig tid. Tiden måste vara mellan 08:00 och 17:00.")
+                if not (time(8, 0) <= tid_obj <= time(16, 0)):
+                    print("Ogiltig tid. Tiden måste vara mellan 08:00 och 16:00.")
                     continue
             except ValueError:
                 print("Felaktigt tidsformat. Ange tiden i formatet HH:MM.")
