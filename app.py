@@ -1,22 +1,22 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import Dict, List
-from datetime import datetime, time
+from typing import List, Dict
+from datetime import datetime, time, timedelta
 import sqlite3
 
 app = FastAPI()
-
-# Funktion för att ansluta till databasen
-def get_db_connection():
-    conn = sqlite3.connect('database.db')
-    conn.row_factory = sqlite3.Row
-    return conn
 
 # Modell för bokningsförfrågan
 class BookingRequest(BaseModel):
     room_id: int
     tid: str  # Tid i formatet "HH:MM"
     datum: str  # Datum i formatet "YYYY-MM-DD"
+
+# Funktion för att ansluta till databasen
+def get_db_connection():
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    return conn
 
 # Validera tidens format och om den är inom öppettider
 def validate_time_format(tid: str) -> bool:
@@ -61,6 +61,21 @@ async def book_room(data: BookingRequest):
     if not validate_time_format(tid):
         raise HTTPException(status_code=422, detail="Ogiltigt tidsformat. Ange tiden i formatet HH:MM mellan 08:00 och 17:00.")
 
+    # Kontrollera datumformat och konvertera till datumobjekt
+    try:
+        booking_date = datetime.strptime(datum, "%Y-%m-%d").date()
+    except ValueError:
+        raise HTTPException(status_code=422, detail="Ogiltigt datumformat. Ange datumet i formatet YYYY-MM-DD.")
+    
+    # Kontrollera att datumet inte ligger i det förflutna
+    today = datetime.today().date()
+    if booking_date < today:
+        raise HTTPException(status_code=422, detail="Datumet ligger i det förflutna. Välj ett framtida datum.")
+    
+    # Kontrollera att datumet är en vardag (måndag-fredag)
+    if booking_date.weekday() > 4:
+        raise HTTPException(status_code=422, detail="Endast bokningar mellan måndag och fredag är tillåtna.")
+
     # Förbered rums-ID
     room = f"Room {room_id}"
 
@@ -79,3 +94,38 @@ async def book_room(data: BookingRequest):
     else:
         conn.close()
         raise HTTPException(status_code=409, detail=f"Rummet {room} är redan bokat för {tid} den {datum}. Välj en annan tid.")
+
+# GET-endpoint för att visa alla lediga rum och tider för de kommande fem vardagarna
+@app.get("/available-rooms-week", response_model=Dict[str, Dict[str, List[str]]])
+async def available_rooms_week():
+    weekdays = []
+    today = datetime.today()
+    while len(weekdays) < 5:
+        if today.weekday() < 5:
+            weekdays.append(today.date().isoformat())
+        today += timedelta(days=1)
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    result = {}
+
+    for day in weekdays:
+        cursor.execute("SELECT room, time FROM bookings WHERE date = ? AND available = 1", (day,))
+        rows = cursor.fetchall()
+        daily_availability = {}
+        
+        for row in rows:
+            room = row["room"]
+            tid = row["time"]
+            if room not in daily_availability:
+                daily_availability[room] = []
+            daily_availability[room].append(tid)
+        
+        result[day] = daily_availability
+    
+    conn.close()
+
+    if result:
+        return result
+    else:
+        raise HTTPException(status_code=404, detail="Inga lediga rum finns för de kommande fem vardagarna.")
