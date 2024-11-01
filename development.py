@@ -1,8 +1,6 @@
-#Databas
-
 import sqlite3
 
-#Funktion för att ansluta till databasen
+# Funktion för att ansluta till databasen
 def get_db_connection():
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row  # Gör att vi kan använda kolumnnamn som nycklar
@@ -21,6 +19,7 @@ def initialize_database():
                 avalaible BOOLEAN DEFAULT 1
             );
         ''')
+<<<<<<< Updated upstream
     conn.close()
 
 #För att säkerställa att datum och tid följer korrekt format innan de sparas i databasen, 
@@ -42,3 +41,35 @@ def validate_and_format_date(date_str, time_str):
 if __name__ == "__main__":
     initialize_database()
     print("Database initialized and table created (if not already present).")
+=======
+        conn.commit()
+    finally:
+        conn.close()
+
+# Funktion för att fylla tabellen med bokningsbara tider
+def populate_bookings():
+    rum = ["Room 1", "Room 2", "Room 3", "Room 4", "Room 5"]
+    start_time = 8  # 08:00
+    end_time = 17   # 17:00
+    tider = [f"{str(hour).zfill(2)}:00" for hour in range(start_time, end_time)]  # Tider från 08:00 till 16:00
+
+    today = datetime.today()
+    weekdays = [today + timedelta(days=i) for i in range(7) if (today + timedelta(days=i)).weekday() < 5]  # Veckans vardagar
+    conn = get_db_connection()
+    with conn:
+        for rum in rum:
+            for weekday in weekdays:
+                for tid in tider:
+                    date_str = weekday.date().isoformat()
+                    conn.execute('INSERT INTO bookings (rum_id, datum, tid, available) VALUES (?, ?, ?, ?)', 
+                                 (rum, date_str, tid, True))
+    conn.close()
+
+# Initiera databasen
+if __name__ == "__main__":
+    if os.path.exists("database.db"):
+        os.remove("database.db")
+    create_booking_table()
+    populate_bookings()
+    print("Database initialized and table created with available bookings.")
+>>>>>>> Stashed changes

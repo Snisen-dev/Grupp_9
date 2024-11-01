@@ -1,0 +1,5 @@
+Felhantering för bokning av ett datum som inte finns med i tabellen. 
+Http status meddelande vid requests
+Felhantering för en tid som inte finns med
+Ersätta bokade tider med exempelvis ("10:00 är redan bokat, välj en ny tid")
+Om man bokar ett rum som inte finns med i tabellen, returnera false med en printning
