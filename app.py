@@ -26,30 +26,6 @@ def validate_time_format(tid: str) -> bool:
     except ValueError:
         return False
 
-# GET-endpoint för att hämta alla lediga rum och tider för dagens datum
-@app.get("/available-rooms", response_model=Dict[str, List[str]])
-async def available_rooms():
-    today = datetime.today().date()
-    
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT room, time FROM bookings WHERE date = ? AND available = 1", (today,))
-    available_times = cursor.fetchall()
-    conn.close()
-
-    result = {}
-    for row in available_times:
-        room = row["room"]
-        tid = row["time"]
-        if room not in result:
-            result[room] = []
-        result[room].append(tid)
-
-    if result:
-        return result
-    else:
-        raise HTTPException(status_code=404, detail="Inga lediga rum finns för idag.")
-
 # POST-endpoint för att boka ett rum
 @app.post("/book-room")
 async def book_room(data: BookingRequest):
