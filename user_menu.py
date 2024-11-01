@@ -1,4 +1,4 @@
-import requests
+import requests #type: ignore
 from datetime import datetime, time
 
 BASE_URL = "http://127.0.0.1:8000"

@@ -43,4 +43,4 @@ class Room:
 class AllRooms:
     def __init__(self) -> None:
         self.rooms: List[Room] = []
- 
+
