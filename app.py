@@ -32,7 +32,7 @@ async def book_room(data: BookingRequest):
     room_id = data.room_id
     tid = data.tid
     datum = data.datum
-
+    
     # Validera tidens format och intervall
     if not validate_time_format(tid):
         raise HTTPException(status_code=422, detail="Ogiltigt tidsformat. Ange tiden i formatet HH:MM mellan 08:00 och 17:00.")
@@ -52,6 +52,8 @@ async def book_room(data: BookingRequest):
     if booking_date.weekday() > 4:
         raise HTTPException(status_code=422, detail="Endast bokningar mellan måndag och fredag är tillåtna.")
 
+    if booking_date > today + timedelta(days=5):
+        raise HTTPException(status_code=422, detail="Datumet ligger för långt i framtiden. Välj ett datum denna vecka.")
     # Förbered rums-ID
     room = f"Room {room_id}"
 
