@@ -1,0 +1,6 @@
+*Felhantering för bokning av ett datum som inte finns med i tabellen, alltså framåt i tiden.
+
+*Göra så att databasen sparar bokningar vid omkörning av databasen. Säg att vi bokar 2024-11-07 och vi befinner oss i 2024-11-06,
+då vill vi att dagen efter (alltså 2024-11-07) när vi kör databasen på nytt ska kunna visa att vi bokat ett rum för den dagen.
+(Samuel tar denna)
+
