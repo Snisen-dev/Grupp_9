@@ -31,22 +31,30 @@ def populate_bookings():
     tider = [f"{str(hour).zfill(2)}:00" for hour in range(start_time, end_time)]
 
     today = datetime.today()
-    weekdays = [today + timedelta(days=i) for i in range(7) if (today + timedelta(days=i)).weekday() < 5]
-    
+    weekdays = [today + timedelta(days=i) for i in range(30) if (today + timedelta(days=i)).weekday() < 5]
+
     conn = get_db_connection()
     with conn:
         for room in rooms:
             for weekday in weekdays:
                 for tid in tider:
                     date = weekday.date().isoformat()
-                    conn.execute('INSERT INTO bookings (room, date, time, available) VALUES (?, ?, ?, ?)', 
-                                 (room, date, tid, True))
+                    
+                    # Check if the booking already exists
+                    existing_booking = conn.execute(
+                        'SELECT 1 FROM bookings WHERE room = ? AND date = ? AND time = ?',
+                        (room, date, tid)
+                    ).fetchone()
+                    
+                    # Insert only if the booking does not already exist
+                    if not existing_booking:
+                        conn.execute(
+                            'INSERT INTO bookings (room, date, time, available) VALUES (?, ?, ?, ?)',
+                            (room, date, tid, True)
+                        )
     conn.close()
 
 if __name__ == "__main__":
-    # Ta bort databasen om den redan finns för att skapa en ny med korrekt struktur
-    if os.path.exists("database.db"):
-        os.remove("database.db")
     
     initialize_database()
     populate_bookings()
