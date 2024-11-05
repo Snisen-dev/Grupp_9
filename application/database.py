@@ -1,6 +1,5 @@
 import sqlite3
 from datetime import datetime, timedelta
-import os
 
 # Funktion för att ansluta till databasen
 def get_db_connection():
