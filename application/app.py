@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from typing import List, Dict
 from datetime import datetime, time, timedelta
 import sqlite3
+from database import get_db_connection
 
 app = FastAPI()
 
@@ -11,12 +12,6 @@ class BookingRequest(BaseModel):
     room_id: int
     tid: str  # Tid i formatet "HH:MM"
     datum: str  # Datum i formatet "YYYY-MM-DD"
-
-# Funktion för att ansluta till databasen
-def get_db_connection():
-    conn = sqlite3.connect('database.db')
-    conn.row_factory = sqlite3.Row
-    return conn
 
 # Validera tidens format och om den är inom öppettider
 def validate_time_format(tid: str) -> bool:
